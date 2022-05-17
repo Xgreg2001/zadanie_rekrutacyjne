@@ -3,4 +3,12 @@ project(zadanie_rekrytacyjne C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(zadanie_rekrytacyjne main.c)
+add_compile_options(-Wall -Wextra -pedantic -Werror)
+
+add_subdirectory(src)
+add_subdirectory(tests)
+
+enable_testing()
+
+add_test(NAME test_queue COMMAND test_queue)
+
