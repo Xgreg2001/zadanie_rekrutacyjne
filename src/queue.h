@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <pthread.h>
 
 #ifndef ZADANIE_REKRYTACYJNE_QUEUE_H
 #define ZADANIE_REKRYTACYJNE_QUEUE_H
@@ -19,9 +20,9 @@ bool queue_is_full(const Queue *q);
 
 bool queue_is_empty(const Queue *q);
 
-void queue_put(Queue *q, int product);
+void queue_put(Queue *q, void *product);
 
-int queue_get(Queue *q);
+void *queue_get(Queue *q);
 
 void queue_lock(Queue *q);
 
