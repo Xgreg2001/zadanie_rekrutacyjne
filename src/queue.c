@@ -4,16 +4,6 @@
 
 #include "queue.h"
 
-struct Queue {
-    size_t max_capacity;
-    size_t size;
-    size_t head;
-    size_t tail;
-    pthread_mutex_t mutex;
-    pthread_cond_t can_produce;
-    pthread_cond_t can_consume;
-    void *buffer[];
-};
 
 Queue *queue_create(size_t capacity) {
     if (capacity <= 0) {

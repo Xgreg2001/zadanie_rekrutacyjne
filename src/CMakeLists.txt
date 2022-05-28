@@ -4,6 +4,12 @@ macro(make_library target source)
 endmacro(make_library)
 
 make_library(queue queue.c)
+make_library(reader reader.c)
+make_library(analyzer analyzer.c)
+
+find_package(Threads REQUIRED)
+
 
 add_executable(main main.c)
-target_link_libraries(main queue)
+target_link_libraries(main queue reader analyzer)
+target_link_libraries(main Threads::Threads)

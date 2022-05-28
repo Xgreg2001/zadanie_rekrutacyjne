@@ -5,3 +5,4 @@ macro(make_test target source library)
 endmacro(make_test)
 
 make_test(test_queue queue_test.c queue)
+make_test(test_reader reader_test.c reader)
