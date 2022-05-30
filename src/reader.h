@@ -8,7 +8,14 @@
 #include "queue.h"
 #include <stdio.h>
 
-char *reader_read(FILE *file);
+#define BUFFER_SIZE 4096
+
+typedef struct Proc_stat_data {
+    char buffer[BUFFER_SIZE];
+    struct timespec time_stamp;
+} Proc_stat_data;
+
+Proc_stat_data *reader_read(FILE *file);
 
 void *reader_run(void *arg);
 
