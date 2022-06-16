@@ -23,6 +23,10 @@ int main() {
     Queue *analyzer_printer_queue = queue_create(10);
     Queue *logger_queue = queue_create(100);
 
+    if (reader_analyzer_queue == NULL || analyzer_printer_queue == NULL || logger_queue == NULL) {
+        perror("failed to create queues\n");
+    }
+
     Queue *args_for_reader[2] = {reader_analyzer_queue,
                                  logger_queue};
     Queue *args_for_analyzer[3] = {reader_analyzer_queue,
@@ -39,13 +43,42 @@ int main() {
     pthread_create(&logger, NULL, logger_run, (void *) &logger_queue);
     pthread_create(&watchdog, NULL, watchdog_run, (void *) &logger_queue);
 
-    pthread_join(reader, NULL);
-    pthread_join(analyzer, NULL);
-    pthread_join(printer, NULL);
-    pthread_join(logger, NULL);
     pthread_join(watchdog, NULL);
+    pthread_join(reader, NULL);
 
-    //TODO empty the queues before destroying them
+    queue_lock(reader_analyzer_queue);
+    queue_call_consumer(reader_analyzer_queue);
+    queue_unlock(reader_analyzer_queue);
+
+    pthread_join(analyzer, NULL);
+
+    queue_lock(analyzer_printer_queue);
+    queue_call_consumer(analyzer_printer_queue);
+    queue_unlock(analyzer_printer_queue);
+
+    pthread_join(printer, NULL);
+
+    queue_lock(logger_queue);
+    queue_call_consumer(logger_queue);
+    queue_unlock(logger_queue);
+
+    pthread_join(logger, NULL);
+
+    while (!queue_is_empty(reader_analyzer_queue)) {
+        void *data = queue_get(reader_analyzer_queue);
+        free(data);
+    }
+
+    while (!queue_is_empty(analyzer_printer_queue)) {
+        void *data = queue_get(analyzer_printer_queue);
+        free(data);
+    }
+
+    while (!queue_is_empty(logger_queue)) {
+        void *data = queue_get(logger_queue);
+        free(data);
+    }
+
     queue_destroy(reader_analyzer_queue);
     queue_destroy(analyzer_printer_queue);
     queue_destroy(logger_queue);

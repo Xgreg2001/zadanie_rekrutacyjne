@@ -20,18 +20,20 @@ void *printer_run(void *arg) {
 
         double *cpu_usage_percentage = printer_get_data(queue);
 
-        watchdog_check_in(printer_id);
+        if (cpu_usage_percentage != NULL) {
+            watchdog_check_in(printer_id);
 
-        system("clear"); // not very portable but I guess so is using /proc/stat
+            system("clear"); // not very portable but I guess so is using /proc/stat
 
-        printf("CPU total: %d%%\n", (int) round(cpu_usage_percentage[0] * 100));
+            printf("CPU total: %d%%\n", (int) round(cpu_usage_percentage[0] * 100));
 
-        for (size_t i = 1; i < core_count; i++) {
-            printf("CPU %zu: %d%%\n", i - 1, (int) round(cpu_usage_percentage[i] * 100));
+            for (size_t i = 1; i < core_count; i++) {
+                printf("CPU %zu: %d%%\n", i - 1, (int) round(cpu_usage_percentage[i] * 100));
+            }
+
+            Logger_message *msg = logger_create_message(12, "data printed");
+            logger_log(msg, logger_queue);
         }
-
-        Logger_message *msg = logger_create_message(12, "data printed");
-        logger_log(msg, logger_queue);
 
         free(cpu_usage_percentage);
     }

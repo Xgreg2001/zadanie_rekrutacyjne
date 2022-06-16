@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 99)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 
-add_compile_options(-Wall -Wextra -pedantic -Werror)
+add_compile_options(-Wall -Wextra -pedantic -Werror -ggdb)
 
 add_subdirectory(src)
 add_subdirectory(tests)

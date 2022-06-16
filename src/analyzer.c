@@ -32,45 +32,37 @@ void *analyzer_run(void *arg) {
         // grab data from queue
         data = analyzer_get_data(input_queue);
 
+        if (data != NULL) {
+            if ((data->time_stamp.tv_sec * 1000 + data->time_stamp.tv_nsec / 1000000) -
+                (previous_timestamp.tv_sec * 1000 + previous_timestamp.tv_nsec / 1000000) > 1000) {
+                // analyze data
 
-        if ((data->time_stamp.tv_sec * 1000 + data->time_stamp.tv_nsec / 1000000) -
-            (previous_timestamp.tv_sec * 1000 + previous_timestamp.tv_nsec / 1000000) > 1000) {
-            // analyze data
+                watchdog_check_in(analyzer_id);
 
-            watchdog_check_in(analyzer_id);
+                double *usage_percent = malloc(core_count * sizeof(double));
 
-            double *usage_percent = malloc(core_count * sizeof(double));
+                analyzer_analyze_data(data->buffer, previous_data, usage_percent);
 
-            analyzer_analyze_data(data->buffer, previous_data, usage_percent);
+                // send data to printer
+                queue_lock(output_queue);
+                if (queue_is_full(output_queue)) {
+                    queue_wait_for_consumer(output_queue);
+                }
 
-            // send data to printer
-            queue_lock(output_queue);
-            if (queue_is_full(output_queue)) {
-                queue_wait_for_consumer(output_queue);
+                queue_put(output_queue, usage_percent);
+                queue_call_consumer(output_queue);
+
+                queue_unlock(output_queue);
+
+                Logger_message *msg = logger_create_message(13, "analyzed data");
+                logger_log(msg, logger_queue);
+
+                previous_timestamp = data->time_stamp;
             }
-
-            queue_put(output_queue, usage_percent);
-            queue_call_consumer(output_queue);
-
-            queue_unlock(output_queue);
-
-            Logger_message *msg = logger_create_message(13, "analyzed data");
-            logger_log(msg, logger_queue);
-
-            previous_timestamp = data->time_stamp;
         }
 
         free(data);
     }
-
-    //TODO make sure that there is no bugs here
-    queue_lock(input_queue);
-    queue_call_producer(input_queue);
-    queue_unlock(input_queue);
-
-    queue_lock(output_queue);
-    queue_call_consumer(output_queue);
-    queue_unlock(output_queue);
 
     return 0;
 }

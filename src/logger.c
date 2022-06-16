@@ -5,20 +5,18 @@
 
 #include "logger.h"
 #include "watchdog.h"
+#include "time.h"
 
 extern volatile sig_atomic_t done;
-
-//TODO flush after every write or figure out a good way to close the program after SIGTERM
 
 void *logger_run(void *arg) {
     Queue *queue = *(Queue **) arg;
 
-    FILE *log_file = fopen("log.txt", "w"); // TODO zamknąć plik gdy już ogarnę przechwytywanie sygnałów
+    FILE *log_file = fopen("log.txt", "w");
 
     if (log_file == NULL) {
-        printf("Nie można otworzyć pliku log.txt\n");
+        perror("Nie można otworzyć pliku log.txt\n");
         done = 1;
-        exit(1); // TODO sprawdzić czy to ma wogle sens XD
     }
 
     while (!done) {
@@ -27,12 +25,14 @@ void *logger_run(void *arg) {
 
         watchdog_check_in(logger_id);
 
-        char time_buff[100];
-        strftime(time_buff, sizeof time_buff, "%D %T", gmtime(&message->time_stamp.tv_sec));
+        if (message != NULL) {
+            char time_buff[100];
+            strftime(time_buff, sizeof time_buff, "%D %T", gmtime(&message->time_stamp.tv_sec));
 
-        fprintf(log_file, "%s.%09ld: %s\n", time_buff, message->time_stamp.tv_nsec, message->message);
+            fprintf(log_file, "%s.%09ld: %s\n", time_buff, message->time_stamp.tv_nsec, message->message);
 
-        free(message);
+            free(message);
+        }
     }
 
     fclose(log_file);

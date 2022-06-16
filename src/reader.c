@@ -16,12 +16,11 @@ void *reader_run(void *arg) {
     Queue *queue = *(Queue **) arg;
     Queue *logger_queue = *((Queue **) arg + 1);
 
-    FILE *stats_file = fopen("/proc/stat", "r"); // TODO zamknąć plik gdy już ogarnę przechwytywanie sygnałów
+    FILE *stats_file = fopen("/proc/stat", "r");
 
     if (stats_file == NULL) {
-        printf("Nie można otworzyć pliku /proc/stat\n");
+        perror("Nie można otworzyć pliku /proc/stat\n");
         done = 1;
-        exit(1); // TODO sprawdzić czy to ma wogle sens XD
     }
 
     while (!done) {
@@ -49,7 +48,6 @@ void *reader_run(void *arg) {
 
     fclose(stats_file);
 
-
     return 0;
 }
 
@@ -57,8 +55,7 @@ Proc_stat_data *reader_read(FILE *file) {
 
     rewind(file);
 
-    Proc_stat_data *data = malloc(
-            sizeof(Proc_stat_data)); //TODO upewnić się że kolejny wątek zwolni pamięć
+    Proc_stat_data *data = malloc(sizeof(Proc_stat_data));
     if (data == NULL) {
         printf("Malloc error !\n");
     }
@@ -74,7 +71,6 @@ Proc_stat_data *reader_read(FILE *file) {
     data->buffer[bytes_read] = '\0';
 
     clock_gettime(CLOCK_REALTIME, &data->time_stamp);
-
 
     return data;
 }
