@@ -10,9 +10,9 @@
 
 extern volatile sig_atomic_t done;
 
-pthread_mutex_t watchdog_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t watchdog_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-bool watchdog_check_ins[THREAD_COUNT] = {0};
+static bool watchdog_check_ins[THREAD_COUNT] = {0};
 
 void *watchdog_run(void *arg) {
     Queue *logger_queue = *((Queue **) arg);

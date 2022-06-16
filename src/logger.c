@@ -65,7 +65,7 @@ Logger_message *logger_create_message(size_t len, char *message) {
         return NULL;
     }
 
-    strncpy(result->message, message, MAX_MESSAGE_LENGTH);
+    strcpy(result->message, message);
 
     clock_gettime(CLOCK_REALTIME, &result->time_stamp);
 

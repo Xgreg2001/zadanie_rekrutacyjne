@@ -9,6 +9,8 @@
 
 volatile sig_atomic_t done = 0;
 
+void term(void);
+
 void term() {
     done = 1;
 }
@@ -16,7 +18,7 @@ void term() {
 int main() {
     struct sigaction action;
     memset(&action, 0, sizeof(struct sigaction));
-    action.sa_handler = term;
+    action.sa_handler = (__sighandler_t) term;
     sigaction(SIGTERM, &action, NULL);
 
     Queue *reader_analyzer_queue = queue_create(10);

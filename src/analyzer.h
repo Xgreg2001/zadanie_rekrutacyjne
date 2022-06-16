@@ -12,8 +12,8 @@
 #include <signal.h>
 
 typedef struct Cpu_usage_data {
-    unsigned long total;
-    unsigned long idle;
+    long long total;
+    long long idle;
 } Cpu_usage_data;
 
 extern volatile sig_atomic_t done;

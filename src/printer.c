@@ -4,7 +4,6 @@
 
 #include <unistd.h>
 #include "printer.h"
-#include <math.h>
 #include "watchdog.h"
 #include "logger.h"
 
@@ -23,13 +22,15 @@ void *printer_run(void *arg) {
         if (cpu_usage_percentage != NULL) {
             watchdog_check_in(printer_id);
 
-            system("clear"); // not very portable but I guess so is using /proc/stat
-//            printf("\e[1;1H\e[2J");
+            int result = system("clear");
+            if (result != 0) {
+                perror("Failed to clear the screen");
+            }
 
-            printf("CPU total: %d%%\n", (int) round(cpu_usage_percentage[0] * 100));
+            printf("CPU total: %.1f%%\n", cpu_usage_percentage[0] * 100);
 
             for (size_t i = 1; i < core_count; i++) {
-                printf("CPU %zu: %d%%\n", i - 1, (int) round(cpu_usage_percentage[i] * 100));
+                printf("CPU %zu: %.1f%%\n", i - 1, cpu_usage_percentage[i] * 100);
             }
 
             Logger_message *msg = logger_create_message(12, "data printed");

@@ -8,7 +8,7 @@
 #include "watchdog.h"
 #include "logger.h"
 
-size_t core_count = 0;
+int core_count = 0;
 
 void *analyzer_run(void *arg) {
 
@@ -23,7 +23,7 @@ void *analyzer_run(void *arg) {
     free(data);
 
     Cpu_usage_data previous_data[core_count];
-    memset(previous_data, 0, core_count * sizeof(Cpu_usage_data));
+    memset(previous_data, 0, (size_t) core_count * sizeof(Cpu_usage_data));
 
     struct timespec previous_timestamp;
     clock_gettime(CLOCK_REALTIME, &previous_timestamp);
@@ -39,7 +39,7 @@ void *analyzer_run(void *arg) {
 
                 watchdog_check_in(analyzer_id);
 
-                double *usage_percent = malloc(core_count * sizeof(double));
+                double *usage_percent = malloc((size_t) core_count * sizeof(double));
 
                 analyzer_analyze_data(data->buffer, previous_data, usage_percent);
 
@@ -83,13 +83,13 @@ void analyzer_analyze_data(char *data, Cpu_usage_data p_data[], double usage_per
     char delim[] = "\n";
 
     char *line = strtok(data, delim);
-    size_t counter = 0;
+    int counter = 0;
     while (counter < core_count) {
         Cpu_usage_data core_data = {0};
         analyzer_analyze_line(line, &core_data);
 
-        unsigned long total_diff = core_data.total - p_data[counter].total;
-        unsigned long idle_diff = core_data.idle - p_data[counter].idle;
+        long long total_diff = core_data.total - p_data[counter].total;
+        long long idle_diff = core_data.idle - p_data[counter].idle;
 
         usage_percent[counter] = ((double) total_diff - (double) idle_diff) / (double) total_diff;
 
@@ -103,22 +103,22 @@ void analyzer_analyze_data(char *data, Cpu_usage_data p_data[], double usage_per
 }
 
 void analyzer_analyze_line(char *line, Cpu_usage_data *out) {
-    unsigned long user = strtol(line + 5, &line, 10);
-    unsigned long nice = strtol(line + 1, &line, 10);
-    unsigned long system = strtol(line + 1, &line, 10);
-    unsigned long idle = strtol(line + 1, &line, 10);
-    unsigned long io_wait = strtol(line + 1, &line, 10);
-    unsigned long irq = strtol(line + 1, &line, 10);
-    unsigned long soft_irq = strtol(line + 1, &line, 10);
-    unsigned long steal = strtol(line + 1, &line, 10);
-    unsigned long guest = strtol(line + 1, &line, 10);
-    unsigned long guest_nice = strtol(line + 1, &line, 10);
+    long long user = strtol(line + 5, &line, 10);
+    long long nice = strtol(line + 1, &line, 10);
+    long long system = strtol(line + 1, &line, 10);
+    long long idle = strtol(line + 1, &line, 10);
+    long long io_wait = strtol(line + 1, &line, 10);
+    long long irq = strtol(line + 1, &line, 10);
+    long long soft_irq = strtol(line + 1, &line, 10);
+    long long steal = strtol(line + 1, &line, 10);
+    long long guest = strtol(line + 1, &line, 10);
+    long long guest_nice = strtol(line + 1, &line, 10);
 
     user -= guest;
     nice -= guest_nice;
 
-    unsigned long idle_all = idle + io_wait;
-    unsigned long total = user + nice + system + irq + soft_irq + idle_all + steal + guest + guest_nice;
+    long long idle_all = idle + io_wait;
+    long long total = user + nice + system + irq + soft_irq + idle_all + steal + guest + guest_nice;
 
     out->total = total;
     out->idle = idle_all;
