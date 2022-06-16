@@ -24,6 +24,7 @@ void *printer_run(void *arg) {
             watchdog_check_in(printer_id);
 
             system("clear"); // not very portable but I guess so is using /proc/stat
+//            printf("\e[1;1H\e[2J");
 
             printf("CPU total: %d%%\n", (int) round(cpu_usage_percentage[0] * 100));
 

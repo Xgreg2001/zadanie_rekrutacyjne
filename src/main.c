@@ -31,7 +31,7 @@ int main() {
                                  logger_queue};
     Queue *args_for_analyzer[3] = {reader_analyzer_queue,
                                    analyzer_printer_queue,
-                                   logger_queue}; // czy trzeba to zwalniać? wydaje mi się że nie to powinny być pointery na stosie
+                                   logger_queue};
     Queue *args_for_printer[2] = {analyzer_printer_queue,
                                   logger_queue};
 

@@ -25,7 +25,7 @@ void *watchdog_run(void *arg) {
         // after waking up confirm that other threads are working
         pthread_mutex_lock(&watchdog_mutex);
         for (int i = 0; i < THREAD_COUNT; i++) {
-            if (!watchdog_check_ins[i]) {
+            if (!watchdog_check_ins[i] && !done) {
                 done = true;
                 Logger_message *msg = logger_create_message(28, "Watchdog: thread not working");
                 logger_log(msg, logger_queue);

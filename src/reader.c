@@ -57,15 +57,15 @@ Proc_stat_data *reader_read(FILE *file) {
 
     Proc_stat_data *data = malloc(sizeof(Proc_stat_data));
     if (data == NULL) {
-        printf("Malloc error !\n");
+        perror("Malloc error !\n");
     }
     size_t bytes_read = fread(data->buffer, sizeof(char), BUFFER_SIZE, file);
 
     if (bytes_read == BUFFER_SIZE) {
-        printf("We could lose some data\n");
+        perror("We could lose some data\n");
     }
     if (bytes_read == 0) {
-        printf("printf didn't read any data\n");
+        perror("printf didn't read any data\n");
     }
 
     data->buffer[bytes_read] = '\0';
