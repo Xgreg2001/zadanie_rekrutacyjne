@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 99)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 if (CMAKE_C_COMPILER_ID MATCHES GNU)
-    set(CMAKE_C_FLAGS "-Wall -pedantic -Wextra")
+    set(CMAKE_C_FLAGS "-Wall -pedantic -Wextra -Wno-unused-parameter")
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -g")
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O3")
 endif ()
