@@ -41,7 +41,7 @@ void *watchdog_run(void *arg) {
     return NULL;
 }
 
-void watchdog_check_in(enum watchdog_threads thread_id) {
+void watchdog_check_in(const enum watchdog_threads thread_id) {
     pthread_mutex_lock(&watchdog_mutex);
     watchdog_check_ins[thread_id] = true;
     pthread_mutex_unlock(&watchdog_mutex);

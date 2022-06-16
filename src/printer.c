@@ -42,7 +42,7 @@ void *printer_run(void *arg) {
     return 0;
 }
 
-double *printer_get_data(Queue *queue) {
+double *printer_get_data(Queue *const queue) {
     queue_lock(queue);
 
 

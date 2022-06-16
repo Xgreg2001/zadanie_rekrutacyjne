@@ -103,7 +103,7 @@ void analyzer_analyze_data(char *data, Cpu_usage_data p_data[], double usage_per
     }
 }
 
-void analyzer_analyze_line(char *line, Cpu_usage_data *out) {
+void analyzer_analyze_line(char *line, Cpu_usage_data *const out) {
     long long user = strtol(line + 5, &line, 10);
     long long nice = strtol(line + 1, &line, 10);
     long long system = strtol(line + 1, &line, 10);
@@ -125,7 +125,7 @@ void analyzer_analyze_line(char *line, Cpu_usage_data *out) {
     out->idle = idle_all;
 }
 
-Proc_stat_data *analyzer_get_data(Queue *queue) {
+Proc_stat_data *analyzer_get_data(Queue *const queue) {
     queue_lock(queue);
 
     if (queue_is_empty(queue)) {

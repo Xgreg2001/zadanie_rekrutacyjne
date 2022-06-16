@@ -17,7 +17,7 @@
 
 void term(void);
 
-void *kill_process(__attribute__((unused)) void *);
+void *kill_process(void *args);
 
 void initiate_finish(void);
 
