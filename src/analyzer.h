@@ -16,8 +16,6 @@ typedef struct Cpu_usage_data {
     long long idle;
 } Cpu_usage_data;
 
-extern volatile sig_atomic_t done;
-
 void *analyzer_run(void *arg);
 
 int analyzer_get_core_count(char *data);

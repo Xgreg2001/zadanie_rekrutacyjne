@@ -13,7 +13,7 @@ make_library(watchdog watchdog.c)
 find_package(Threads REQUIRED)
 
 
-add_executable(main main.c)
+add_executable(main main.c main.h)
 target_link_libraries(main queue reader analyzer printer logger watchdog)
 target_link_libraries(main Threads::Threads)
 target_link_libraries(main m)

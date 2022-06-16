@@ -6,16 +6,15 @@
 #include "printer.h"
 #include "watchdog.h"
 #include "logger.h"
+#include "main.h"
 
 extern size_t core_count;
-
-extern volatile sig_atomic_t done;
 
 void *printer_run(void *arg) {
     Queue *queue = *(Queue **) arg;
     Queue *logger_queue = *((Queue **) arg + 1);
 
-    while (!done) {
+    while (!should_finish()) {
 
         double *cpu_usage_percentage = printer_get_data(queue);
 

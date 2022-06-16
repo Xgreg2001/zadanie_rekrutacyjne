@@ -7,6 +7,7 @@
 #include "reader.h"
 #include "watchdog.h"
 #include "logger.h"
+#include "main.h"
 
 int core_count = 0;
 
@@ -28,7 +29,7 @@ void *analyzer_run(void *arg) {
     struct timespec previous_timestamp;
     clock_gettime(CLOCK_REALTIME, &previous_timestamp);
 
-    while (!done) {
+    while (!should_finish()) {
         // grab data from queue
         data = analyzer_get_data(input_queue);
 

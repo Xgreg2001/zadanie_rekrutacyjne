@@ -1,24 +1,43 @@
-#include <string.h>
-#include <signal.h>
-#include "queue.h"
-#include "reader.h"
-#include "analyzer.h"
-#include "printer.h"
-#include "logger.h"
-#include "watchdog.h"
+#include "main.h"
 
-volatile sig_atomic_t done = 0;
+static pthread_mutex_t done_mutex = PTHREAD_MUTEX_INITIALIZER;
+static bool done = 0;
 
-void term(void);
+void *kill_process(void *args) {
+    initiate_finish();
+    return NULL;
+}
 
 void term() {
+    pthread_t process_killer;
+    pthread_create(&process_killer, NULL, kill_process, NULL);
+    pthread_join(process_killer, NULL);
+}
+
+bool should_finish() {
+    bool result;
+    pthread_mutex_lock(&done_mutex);
+    result = done;
+    pthread_mutex_unlock(&done_mutex);
+    return result;
+}
+
+void initiate_finish() {
+    pthread_mutex_lock(&done_mutex);
     done = 1;
+    pthread_mutex_unlock(&done_mutex);
 }
 
 int main() {
     struct sigaction action;
+    sigset_t block_mask;
+
+    sigemptyset(&block_mask);
+    sigaddset(&block_mask, SIGTERM);
     memset(&action, 0, sizeof(struct sigaction));
     action.sa_handler = (__sighandler_t) term;
+    action.sa_mask = block_mask;
+    action.sa_flags = 0;
     sigaction(SIGTERM, &action, NULL);
 
     Queue *reader_analyzer_queue = queue_create(10);
@@ -44,6 +63,9 @@ int main() {
     pthread_create(&printer, NULL, printer_run, (void *) &args_for_printer);
     pthread_create(&logger, NULL, logger_run, (void *) &logger_queue);
     pthread_create(&watchdog, NULL, watchdog_run, (void *) &logger_queue);
+
+    sigemptyset(&block_mask);
+    sigprocmask(SIG_SETMASK, &block_mask, NULL);
 
     pthread_join(watchdog, NULL);
     pthread_join(reader, NULL);

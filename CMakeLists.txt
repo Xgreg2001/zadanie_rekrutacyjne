@@ -11,7 +11,7 @@ if (CMAKE_C_COMPILER_ID MATCHES GNU)
 endif ()
 
 if (CMAKE_C_COMPILER_ID MATCHES Clang)
-    set(CMAKE_C_FLAGS "-Weverything -Wno-disabled-macro-expansion -Wno-vla -Wno-padded -Wno-missing-variable-declarations")
+    set(CMAKE_C_FLAGS "-Weverything -Wno-disabled-macro-expansion -Wno-vla -Wno-padded -Wno-missing-variable-declarations -Wno-unused-parameter")
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -g")
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O3")
 endif ()

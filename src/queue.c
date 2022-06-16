@@ -4,7 +4,7 @@
 
 #include "queue.h"
 
-Queue *queue_create(size_t capacity) {
+Queue *queue_create(const size_t capacity) {
     if (capacity <= 0) {
         return NULL;
     }
@@ -27,7 +27,7 @@ Queue *queue_create(size_t capacity) {
     return q;
 }
 
-void queue_destroy(Queue *q) {
+void queue_destroy(Queue *const q) {
     pthread_cond_destroy(&q->can_produce);
     pthread_cond_destroy(&q->can_consume);
     pthread_mutex_destroy(&q->mutex);
@@ -35,15 +35,15 @@ void queue_destroy(Queue *q) {
     free(q);
 }
 
-bool queue_is_full(const Queue *q) {
+bool queue_is_full(const Queue *const q) {
     return q->size == q->max_capacity;
 }
 
-bool queue_is_empty(const Queue *q) {
+bool queue_is_empty(const Queue *const q) {
     return q->size == 0;
 }
 
-void queue_put(Queue *q, void *product) {
+void queue_put(Queue *const q, void *const product) {
     if (queue_is_full(q)) {
         return;
     }
@@ -57,7 +57,7 @@ void queue_put(Queue *q, void *product) {
     q->size++;
 }
 
-void *queue_get(Queue *q) {
+void *queue_get(Queue *const q) {
     if (queue_is_empty(q)) {
         return NULL;
     }
@@ -69,27 +69,27 @@ void *queue_get(Queue *q) {
     return product;
 }
 
-void queue_lock(Queue *q) {
+void queue_lock(Queue *const q) {
     pthread_mutex_lock(&q->mutex);
 }
 
-void queue_unlock(Queue *q) {
+void queue_unlock(Queue *const q) {
     pthread_mutex_unlock(&q->mutex);
 }
 
-void queue_call_producer(Queue *q) {
+void queue_call_producer(Queue *const q) {
     pthread_cond_signal(&q->can_produce);
 }
 
-void queue_call_consumer(Queue *q) {
+void queue_call_consumer(Queue *const q) {
     pthread_cond_signal(&q->can_consume);
 }
 
-void queue_wait_for_producer(Queue *q) {
+void queue_wait_for_producer(Queue *const q) {
     pthread_cond_wait(&q->can_consume, &q->mutex);
 }
 
-void queue_wait_for_consumer(Queue *q) {
+void queue_wait_for_consumer(Queue *const q) {
     pthread_cond_wait(&q->can_produce, &q->mutex);
 }
 

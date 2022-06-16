@@ -6,6 +6,7 @@
 #define ZADANIE_REKRYTACYJNE_WATCHDOG_H
 
 #include <stdbool.h>
+#include <signal.h>
 
 #define THREAD_COUNT 4
 

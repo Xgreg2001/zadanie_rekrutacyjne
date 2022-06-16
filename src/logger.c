@@ -6,8 +6,8 @@
 #include "logger.h"
 #include "watchdog.h"
 #include "time.h"
+#include "main.h"
 
-extern volatile sig_atomic_t done;
 
 void *logger_run(void *arg) {
     Queue *queue = *(Queue **) arg;
@@ -16,10 +16,10 @@ void *logger_run(void *arg) {
 
     if (log_file == NULL) {
         perror("Nie można otworzyć pliku log.txt\n");
-        done = 1;
+        initiate_finish();
     }
 
-    while (!done) {
+    while (!should_finish()) {
 
         Logger_message *message = logger_get_data(queue);
 

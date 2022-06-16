@@ -5,14 +5,13 @@
 
 #include <unistd.h>
 #include "reader.h"
-#include <signal.h>
 #include <sys/time.h>
 #include "logger.h"
 #include "watchdog.h"
+#include "main.h"
 
-extern volatile sig_atomic_t done;
 
-void *reader_run(void *arg) {
+void *reader_run(void *const arg) {
     Queue *queue = *(Queue **) arg;
     Queue *logger_queue = *((Queue **) arg + 1);
 
@@ -20,10 +19,10 @@ void *reader_run(void *arg) {
 
     if (stats_file == NULL) {
         perror("Nie można otworzyć pliku /proc/stat\n");
-        done = 1;
+        initiate_finish();
     }
 
-    while (!done) {
+    while (!should_finish()) {
         Proc_stat_data *data = reader_read(stats_file);
 
         Logger_message *msg = logger_create_message(21, "Read from /proc/stat");
@@ -51,7 +50,7 @@ void *reader_run(void *arg) {
     return 0;
 }
 
-Proc_stat_data *reader_read(FILE *file) {
+Proc_stat_data *reader_read(FILE *const file) {
 
     rewind(file);
 
