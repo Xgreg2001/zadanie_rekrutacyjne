@@ -4,7 +4,7 @@
 
 #include "queue.h"
 
-
+// TODO check for NULL when creating queues
 Queue *queue_create(size_t capacity) {
     if (capacity <= 0) {
         return NULL;

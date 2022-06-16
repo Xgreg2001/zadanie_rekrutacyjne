@@ -7,22 +7,30 @@
 #include "reader.h"
 #include <signal.h>
 #include <sys/time.h>
+#include "logger.h"
+#include "watchdog.h"
 
 extern volatile sig_atomic_t done;
 
 void *reader_run(void *arg) {
     Queue *queue = *(Queue **) arg;
+    Queue *logger_queue = *((Queue **) arg + 1);
 
     FILE *stats_file = fopen("/proc/stat", "r"); // TODO zamknąć plik gdy już ogarnę przechwytywanie sygnałów
 
     if (stats_file == NULL) {
-        printf("Nie można otworzyć pliku %s\n", "/proc/stat");
+        printf("Nie można otworzyć pliku /proc/stat\n");
         done = 1;
         exit(1); // TODO sprawdzić czy to ma wogle sens XD
     }
 
     while (!done) {
         Proc_stat_data *data = reader_read(stats_file);
+
+        Logger_message *msg = logger_create_message(21, "Read from /proc/stat");
+        logger_log(msg, logger_queue);
+
+        watchdog_check_in(reader_id);
 
         queue_lock(queue);
         if (queue_is_full(queue)) {
@@ -66,6 +74,7 @@ Proc_stat_data *reader_read(FILE *file) {
     data->buffer[bytes_read] = '\0';
 
     clock_gettime(CLOCK_REALTIME, &data->time_stamp);
+
 
     return data;
 }

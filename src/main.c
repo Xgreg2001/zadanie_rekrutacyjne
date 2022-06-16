@@ -4,6 +4,8 @@
 #include "reader.h"
 #include "analyzer.h"
 #include "printer.h"
+#include "logger.h"
+#include "watchdog.h"
 
 volatile sig_atomic_t done = 0;
 
@@ -19,22 +21,34 @@ int main() {
 
     Queue *reader_analyzer_queue = queue_create(10);
     Queue *analyzer_printer_queue = queue_create(10);
+    Queue *logger_queue = queue_create(100);
 
-    Queue *args_for_analyzer[2] = {reader_analyzer_queue,
-                                   analyzer_printer_queue}; // czy trzeba to zwalniać? wydaje mi się że nie to powinny być pointery na stosie
+    Queue *args_for_reader[2] = {reader_analyzer_queue,
+                                 logger_queue};
+    Queue *args_for_analyzer[3] = {reader_analyzer_queue,
+                                   analyzer_printer_queue,
+                                   logger_queue}; // czy trzeba to zwalniać? wydaje mi się że nie to powinny być pointery na stosie
+    Queue *args_for_printer[2] = {analyzer_printer_queue,
+                                  logger_queue};
 
-    pthread_t reader, analyzer, printer;
-    pthread_create(&reader, NULL, reader_run, (void *) &reader_analyzer_queue);
+
+    pthread_t reader, analyzer, printer, logger, watchdog;
+    pthread_create(&reader, NULL, reader_run, (void *) &args_for_reader);
     pthread_create(&analyzer, NULL, analyzer_run, (void *) &args_for_analyzer);
-    pthread_create(&printer, NULL, printer_run, (void *) &analyzer_printer_queue);
+    pthread_create(&printer, NULL, printer_run, (void *) &args_for_printer);
+    pthread_create(&logger, NULL, logger_run, (void *) &logger_queue);
+    pthread_create(&watchdog, NULL, watchdog_run, (void *) &logger_queue);
 
     pthread_join(reader, NULL);
     pthread_join(analyzer, NULL);
     pthread_join(printer, NULL);
+    pthread_join(logger, NULL);
+    pthread_join(watchdog, NULL);
 
     //TODO empty the queues before destroying them
     queue_destroy(reader_analyzer_queue);
     queue_destroy(analyzer_printer_queue);
+    queue_destroy(logger_queue);
 
     return 0;
 }

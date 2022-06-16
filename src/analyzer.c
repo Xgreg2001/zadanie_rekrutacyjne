@@ -5,6 +5,8 @@
 
 #include "analyzer.h"
 #include "reader.h"
+#include "watchdog.h"
+#include "logger.h"
 
 size_t core_count = 0;
 
@@ -12,6 +14,7 @@ void *analyzer_run(void *arg) {
 
     Queue *input_queue = *(Queue **) arg;
     Queue *output_queue = *((Queue **) arg + 1);
+    Queue *logger_queue = *((Queue **) arg + 2);
 
     Proc_stat_data *data = analyzer_get_data(input_queue);
 
@@ -34,6 +37,8 @@ void *analyzer_run(void *arg) {
             (previous_timestamp.tv_sec * 1000 + previous_timestamp.tv_nsec / 1000000) > 1000) {
             // analyze data
 
+            watchdog_check_in(analyzer_id);
+
             double *usage_percent = malloc(core_count * sizeof(double));
 
             analyzer_analyze_data(data->buffer, previous_data, usage_percent);
@@ -48,6 +53,9 @@ void *analyzer_run(void *arg) {
             queue_call_consumer(output_queue);
 
             queue_unlock(output_queue);
+
+            Logger_message *msg = logger_create_message(13, "analyzed data");
+            logger_log(msg, logger_queue);
 
             previous_timestamp = data->time_stamp;
         }
