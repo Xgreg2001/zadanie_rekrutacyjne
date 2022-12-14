@@ -16,6 +16,8 @@ void *printer_run(void *arg) {
 
     while (!should_finish()) {
 
+        sleep(3);
+
         double *cpu_usage_percentage = printer_get_data(queue);
 
         if (cpu_usage_percentage != NULL) {
